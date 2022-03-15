@@ -1,4 +1,4 @@
-{
+  {
   "schemaVersion": 1,
   "id": "openseasons",
   "version": "${version}",
@@ -22,7 +22,7 @@
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+
   ],
 
   "depends": {
