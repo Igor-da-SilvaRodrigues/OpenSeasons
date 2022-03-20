@@ -15,7 +15,10 @@ public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModIni
 
         ClientPlayConnectionEvents.INIT.register((handler, client) -> {
             OpenSeasonsUtil.setSeasonBlocks();
-            client.worldRenderer.reload();
+
+            client.execute(()->{
+                client.worldRenderer.reload();
+            });
         });
 
         //register packet receiver

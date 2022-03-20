@@ -31,6 +31,9 @@ public class OpenSeasonsMod implements ModInitializer {
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			LOGGER.info("Loading seasons");
+
+			LOGGER.info(String.valueOf(server.getOverworld().getSeed()) + "<<<SEED");
+
 			load();
 			SERVER_IS_STARTED = true;
 
