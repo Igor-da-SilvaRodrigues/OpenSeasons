@@ -19,6 +19,9 @@
   "entrypoints": {
     "main": [
       "openseasons.OpenSeasonsMod"
+    ],
+    "client": [
+      "openseasons.OpenSeasonsModClient"
     ]
   },
   "mixins": [
