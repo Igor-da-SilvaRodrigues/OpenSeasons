@@ -1,0 +1,40 @@
+  {
+  "schemaVersion": 1,
+  "id": "openseasons",
+  "version": "${version}",
+
+  "name": "Open Seasons",
+  "description": "Minecraft Seasons!",
+  "authors": [
+    "Igor Rodrigues"
+  ],
+  "contact": {
+
+  },
+
+  "license": "MIT",
+  "icon": "assets/modid/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "openseasons.OpenSeasonsMod"
+    ],
+    "client": [
+      "openseasons.OpenSeasonsModClient"
+    ]
+  },
+  "mixins": [
+
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.13.3",
+    "fabric": "*",
+    "minecraft": "1.18.x",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
