@@ -41,8 +41,12 @@ public class OpenSeasonsMod implements ModInitializer {
 		ServerTickEvents.END_WORLD_TICK.register((world)->{
 			short currentTime = (short) (world.getTimeOfDay() % 24000L);//getting time of day
 
-			if (currentTime == 0){
+
+			if (currentTime == 1){
 				current_day += 1;
+
+				LOGGER.info("A day has passed.");
+				LOGGER.info("We're in day number {}", current_day);
 
 				if (current_day >= MAX_DAY_COUNT){
 					this.nextSeason(world);
