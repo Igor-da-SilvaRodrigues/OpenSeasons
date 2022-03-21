@@ -23,7 +23,7 @@ configuration should appear in the ``./config/`` folder.
 
 This file can be edited to customize the mod.
 
-####Fields
+#### Fields
 
 | Field          | Type   | Description                                                                     |
 |----------------|--------|---------------------------------------------------------------------------------|
@@ -36,8 +36,8 @@ This file can be edited to customize the mod.
 | ``spring_color``   | ``String`` | The decimal color code for Spring foliage                                       |
 
 
-#####Example
-######openseasons.json
+##### Example
+###### openseasons.json
 ````
 {
     "current_day":5,
