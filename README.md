@@ -19,7 +19,7 @@ The output ```.jar``` file should be in the ``` ./build/libs ``` folder.
 ### Customization
 
 After booting up a world with the mod for the first time, an ``openseasons.json`` file with the default 
-configuration should appear in the ``./config/`` folder.
+configuration should appear in the ``./config`` folder.
 
 This file can be edited to customize the mod.
 
