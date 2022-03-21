@@ -18,7 +18,6 @@ import java.io.IOException;
 public class OpenSeasonsMod implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("open-seasons");
-	public static boolean SERVER_IS_STARTED = false;
 	public static byte current_day = 1;
 	public static byte MAX_DAY_COUNT = 10;
 	static Seasons current_season = Seasons.SUMMER;
@@ -31,16 +30,10 @@ public class OpenSeasonsMod implements ModInitializer {
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			LOGGER.info("Loading seasons");
-
-			LOGGER.info(String.valueOf(server.getOverworld().getSeed()) + "<<<SEED");
-
 			load();
-			SERVER_IS_STARTED = true;
-
 		});
 
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-			SERVER_IS_STARTED = false;
 			LOGGER.info("Saving seasons");
 			save();
 		});
@@ -50,30 +43,22 @@ public class OpenSeasonsMod implements ModInitializer {
 
 			if (currentTime == 0){
 				current_day += 1;
-				LOGGER.info("A day has passed\n");
 
 				if (current_day >= MAX_DAY_COUNT){
-					//this.nextSeason(world);
+					this.nextSeason(world);
 				}
-				this.nextSeason(world);//is here for ease of debugging.
-				LOGGER.info("We're in day number {}\n", current_day);
-				LOGGER.info("It's a {} day\n", current_season);
-				LOGGER.info("The max day count is {}", MAX_DAY_COUNT);
+
 			}
 		});
 	}
 
 	void nextSeason(ServerWorld world){
 		current_season = current_season.next();
-		LOGGER.info("It is now {}", current_season);
-
-		world.setRainGradient(current_season.getHumidity());
 
 		for (ServerPlayerEntity player : world.getPlayers()){
 			ServerPlayNetworking.send(player, NEXT_SEASON, PacketByteBufs.empty());
 		}
 
-		LOGGER.info("The color should have been applied now!");
 		current_day = 1;
 	}
 
