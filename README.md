@@ -25,15 +25,15 @@ This file can be edited to customize the mod.
 
 #### Fields
 
-| Field          | Type   | Description                                                                     |
-|----------------|--------|---------------------------------------------------------------------------------|
-| ``current_day``    | ``int``    | Records the current day of a season.                                            |
+| Field          | Type   | Description                                                                    |
+|----------------|--------|--------------------------------------------------------------------------------|
+| ``current_day``    | ``int``    | Records the current day of a season.                                           |
 | ``current_season`` | ``String`` | Records the current season. Can be ``Summer``,``Fall``,``Winter`` or ``Spring`` |
-| ``max_day_count``  | ``int``    | The amount of days each seasons lasts.                                          |
-| ``summer_color``   | ``String`` | The decimal color code for Summer foliage                                       |
-| ``fall_color``     | ``String`` | The decimal color code for Fall foliage                                         |
-| ``winter_color``   | ``String`` | The decimal color code for Winter foliage                                       |
-| ``spring_color``   | ``String`` | The decimal color code for Spring foliage                                       |
+| ``max_day_count``  | ``int``    | The amount of days each season lasts.                                          |
+| ``summer_color``   | ``String`` | The decimal color code for Summer foliage                                      |
+| ``fall_color``     | ``String`` | The decimal color code for Fall foliage                                        |
+| ``winter_color``   | ``String`` | The decimal color code for Winter foliage                                      |
+| ``spring_color``   | ``String`` | The decimal color code for Spring foliage                                      |
 
 
 ##### Example
