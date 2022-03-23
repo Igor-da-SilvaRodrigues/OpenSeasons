@@ -1,9 +1,11 @@
-package openseasons;
+package openseasons.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.block.Blocks;
+import openseasons.OpenSeasonsMod;
+import openseasons.Seasons;
 
 @Environment(EnvType.CLIENT)
 public class OpenSeasonsUtil {
@@ -11,9 +13,9 @@ public class OpenSeasonsUtil {
      * sets the chosen season color.
      *
      */
-    public static void setSeasonBlocks() {
+    public static void setSeasonBlocks(Seasons season) {
 
-        int intended_color = OpenSeasonsMod.current_season.getFoliagecolor();
+        int intended_color = season.getFoliagecolor();
 
         OpenSeasonsMod.LOGGER.info("The following color has been chosen> {}", intended_color);
 

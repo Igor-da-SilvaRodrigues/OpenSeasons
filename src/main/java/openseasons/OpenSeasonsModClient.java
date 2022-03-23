@@ -5,16 +5,29 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import openseasons.util.OpenSeasonsUtil;
 
 
 @Environment(EnvType.CLIENT)
 public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModInitializer {
+
+
     @Override
     public void onInitializeClient() {
         OpenSeasonsMod.LOGGER.info("Initializing Client...");
 
-        ClientPlayConnectionEvents.INIT.register((handler, client) -> {
-            OpenSeasonsUtil.setSeasonBlocks();
+        //ClientPlayConnectionEvents.INIT.register((handler, client) -> {
+        //    OpenSeasonsUtil.setSeasonBlocks();
+        //
+        //    client.execute(()->{
+        //        client.worldRenderer.reload();
+        //    });
+        //});
+
+        ClientPlayNetworking.registerGlobalReceiver(OpenSeasonsMod.CLIENT_JOIN, (client, handler, buf,
+                                                                                 responseSender) -> {
+            Seasons season = Seasons.getSeason(buf.readString());
+            OpenSeasonsUtil.setSeasonBlocks(season);
 
             client.execute(()->{
                 client.worldRenderer.reload();
@@ -24,11 +37,12 @@ public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModIni
         //register packet receiver
         ClientPlayNetworking.registerGlobalReceiver(OpenSeasonsMod.NEXT_SEASON, (client, handler, buf,
                                                                                  responseSender) -> {
-            OpenSeasonsUtil.setSeasonBlocks();
+            Seasons season = Seasons.getSeason(buf.readString());
+            OpenSeasonsUtil.setSeasonBlocks(season);
 
-           client.execute(()->{
+            client.execute(()->{
                client.worldRenderer.reload();
-           });
+            });
 
         });
 

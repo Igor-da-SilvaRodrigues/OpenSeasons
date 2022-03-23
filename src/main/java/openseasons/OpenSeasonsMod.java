@@ -6,27 +6,33 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import openseasons.JSON.SimpleJSON;
+import openseasons.util.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 public class OpenSeasonsMod implements ModInitializer {
-
-	public static final Logger LOGGER = LoggerFactory.getLogger("open-seasons");
-	public static byte current_day = 1;
+	public static final String MOD_ID = Keys.MOD_ID;
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static byte MAX_DAY_COUNT = 10;
-	static Seasons current_season = Seasons.SUMMER;
 	private static final String config_path = "config/openseasons.json";
-	public static final Identifier RELOAD_RENDERER = new Identifier("reload_renderer");
-	public static final Identifier NEXT_SEASON = new Identifier("next_season");
+
+	public static final Identifier RELOAD_RENDERER = new Identifier(MOD_ID,Keys.RELOAD_RENDERER);
+	public static final Identifier NEXT_SEASON = new Identifier(MOD_ID,Keys.NEXT_SEASON);
+	public static final Identifier CLIENT_JOIN = new Identifier(MOD_ID, Keys.CLIENT_JOIN);
 
 	@Override
 	public void onInitialize() {
+
+
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			LOGGER.info("Loading seasons");
@@ -38,51 +44,65 @@ public class OpenSeasonsMod implements ModInitializer {
 			save();
 		});
 
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			LOGGER.info("First time configuration. If this is the first time loading a world, expect it to load " +
+					"default configurations");
+			OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(handler.getPlayer().getWorld());
+
+			PacketByteBuf buf = PacketByteBufs.create();
+			buf.writeString(worldState.current_season.toString());
+
+			ServerPlayNetworking.send(handler.getPlayer(), CLIENT_JOIN, buf);
+
+		});
+
+
 		ServerTickEvents.END_WORLD_TICK.register((world)->{
 			short currentTime = (short) (world.getTimeOfDay() % 24000L);//getting time of day
 
-
 			if (currentTime == 1){
-				current_day += 1;
+				OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(world);
+				worldState.current_day +=  1;
 
 				LOGGER.info("A day has passed.");
-				LOGGER.info("We're in day number {}", current_day);
+				LOGGER.info("We're in day number {}", worldState.current_day);
 
-				if (current_day >= MAX_DAY_COUNT){
-					this.nextSeason(world);
+				if (worldState.current_day >= MAX_DAY_COUNT){
+					worldState.current_season = worldState.current_season.next();
+					worldState.current_day = 1;
+					this.nextSeason(world, worldState);
+
 				}
+				LOGGER.info("Trying to set state");
+				worldState.markDirty();
+				world.getPersistentStateManager().set(Keys.WORLD_STATE, worldState);//set state every time a day passes.
 
 			}
+
 		});
 	}
 
-	void nextSeason(ServerWorld world){
-		current_season = current_season.next();
+	/**
+	 * Notifies all clients to render the next season. Might have to rename this to "renderSeason" since now it no
+	 * longer passes the season...
+	 * @param world You know what this is
+	 * @param worldState The state containing the desired season.
+	 */
+	void nextSeason(ServerWorld world, OpenSeasonsWorldState worldState){
+
+		PacketByteBuf buffer = PacketByteBufs.create();
+		buffer.writeString(worldState.current_season.toString());
 
 		for (ServerPlayerEntity player : world.getPlayers()){
-			ServerPlayNetworking.send(player, NEXT_SEASON, PacketByteBufs.empty());
+			ServerPlayNetworking.send(player, NEXT_SEASON, buffer);
 		}
 
-		current_day = 1;
 	}
 
 	static void load(){
 		JsonElement element;
 		try{
 			JsonObject object = SimpleJSON.loadFrom(config_path);
-			element = object.get("current_day");
-
-			if(element != null && element.isJsonPrimitive()){
-				current_day = element.getAsJsonPrimitive().getAsByte();
-				LOGGER.info("Loaded {} as the current day", current_day);
-			}
-
-			element = object.get("current_season");
-
-			if(element != null && element.isJsonPrimitive()){
-				current_season = Seasons.getSeason(element.getAsJsonPrimitive().getAsString());
-				LOGGER.info("Loaded {} as the current season", current_season);
-			}
 
 			element = object.get("max_day_count");
 
@@ -125,8 +145,7 @@ public class OpenSeasonsMod implements ModInitializer {
 
 	static void save() {
 		JsonObject attributes = new JsonObject();
-		attributes.addProperty("current_day", current_day);
-		attributes.addProperty("current_season", current_season.toString());
+
 		attributes.addProperty("max_day_count", MAX_DAY_COUNT);
 		attributes.addProperty("summer_color", String.valueOf(Seasons.SUMMER.getFoliagecolor()));
 		attributes.addProperty("fall_color",   String.valueOf(Seasons.FALL.getFoliagecolor()));
