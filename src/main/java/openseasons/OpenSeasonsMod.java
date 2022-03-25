@@ -3,6 +3,7 @@ package openseasons;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -14,6 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import openseasons.JSON.SimpleJSON;
 import openseasons.util.Keys;
+import openseasons.commands.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +33,6 @@ public class OpenSeasonsMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-
-
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			LOGGER.info("Loading seasons");
@@ -80,6 +80,9 @@ public class OpenSeasonsMod implements ModInitializer {
 			}
 
 		});
+
+		registerCommands();
+
 	}
 
 	/**
@@ -98,6 +101,18 @@ public class OpenSeasonsMod implements ModInitializer {
 		}
 
 	}
+
+	// register commands here....
+	private void registerCommands(){
+		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+
+			new OpenseasonsCommand().register(dispatcher);
+			new DayCommand().register(dispatcher);
+			new SeasonCommand().register(dispatcher);
+
+		});
+	}
+
 
 	static void load(){
 		JsonElement element;
