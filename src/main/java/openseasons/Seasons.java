@@ -11,7 +11,6 @@ public enum Seasons {
     private final float temperature;
     private final float humidity;
     private int foliagecolor;
-    public static final Seasons seasons[] = {Seasons.SUMMER, Seasons.FALL, Seasons.WINTER, Seasons.SPRING};
 
     static{
         SUMMER.next = FALL;
@@ -65,7 +64,7 @@ public enum Seasons {
 
     public static boolean hasSeason(String id){
         for (Seasons season : Seasons.values()){
-            if ( season.toString().toLowerCase().equals( id.toLowerCase() ) ) return true;
+            if ( season.toString().equalsIgnoreCase(id) ) return true;
         }
         return false;
     }

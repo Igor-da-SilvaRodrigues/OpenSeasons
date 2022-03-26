@@ -37,8 +37,8 @@ public class OpenSeasonsWorldState extends PersistentState {
     /**
      * Gets the OpenSeasonsWorldState from a ServerWorld and returns it. If it fails to load a state for any reason, a
      * default state will be returned instead.
-     * @param world
-     * @return
+     * @param world The target world
+     * @return The world state
      */
     public static OpenSeasonsWorldState getState(ServerWorld world){
         OpenSeasonsWorldState state = new OpenSeasonsWorldState();
