@@ -42,9 +42,9 @@ public class OpenseasonsCommand implements Command<ServerCommandSource> {
     public int set(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
         Integer day = IntegerArgumentType.getInteger(context, "day");
-        if (day < 1 || day >= OpenSeasonsMod.MAX_DAY_COUNT) {
+        if (day < 1 || day > OpenSeasonsMod.MAX_DAY_COUNT) {
             throw new SimpleCommandExceptionType(
-                    new LiteralText("Day argument out of range: 1-" +(OpenSeasonsMod.MAX_DAY_COUNT - 1))
+                    new LiteralText("Day argument out of range: 1-" +OpenSeasonsMod.MAX_DAY_COUNT)
             ).create();
 
         }
@@ -60,7 +60,7 @@ public class OpenseasonsCommand implements Command<ServerCommandSource> {
         OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(world);
         worldState.current_season = Seasons.getSeason(season);
         worldState.current_day = day.byteValue();
-        OpenSeasonsWorldState.setState(world, worldState);
+        OpenSeasonsWorldState.setState(world, worldState, true);
 
         return 0;
     }
@@ -79,14 +79,6 @@ public class OpenseasonsCommand implements Command<ServerCommandSource> {
                                 .executes(this)
                 )
 
-
-                /*
-                .then((CommandManager.literal("set"))
-                .then((CommandManager.argument("season", StringArgumentType.string()))
-                .then(CommandManager.argument("day", IntegerArgumentType.integer()))))
-                .executes(this::set)
-
-                 */
         );
 
     }

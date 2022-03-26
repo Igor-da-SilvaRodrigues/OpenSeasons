@@ -67,7 +67,7 @@ public class OpenSeasonsMod implements ModInitializer {
 				LOGGER.info("A day has passed.");
 				LOGGER.info("We're in day number {}", worldState.current_day);
 
-				if (worldState.current_day >= MAX_DAY_COUNT){
+				if (worldState.current_day > MAX_DAY_COUNT){
 					worldState.current_season = worldState.current_season.next();
 					worldState.current_day = 1;
 					reloadSeason(world, worldState);

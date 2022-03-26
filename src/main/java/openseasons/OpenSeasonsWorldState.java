@@ -67,15 +67,14 @@ public class OpenSeasonsWorldState extends PersistentState {
     }
 
     /**
-     * <p>Sets the state to a world. This will also notify clients to reload their world renderer.
-     * It should only really be used when a new season rolls in, It's dumb to reload every single day when it doesn't
-     * affect anything visually.</p>
-     * <p> If you don't want to notify clients, set the state manually.</p>
+     * <p>Sets the state to a world. This can also notify clients to reload their world renderer.
+     *
      * @param world The target world
      * @param worldState The desired world state
+     * @param notifyClients Will notify clients to reload their world renderer when true.
      */
-    public static void setState(ServerWorld world, OpenSeasonsWorldState worldState){
-        OpenSeasonsMod.reloadSeason(world, worldState);
+    public static void setState(ServerWorld world, OpenSeasonsWorldState worldState, boolean notifyClients){
+        if (notifyClients) OpenSeasonsMod.reloadSeason(world, worldState);
         if (!worldState.isDirty()) worldState.markDirty();
         world.getPersistentStateManager().set(Keys.WORLD_STATE, worldState);
     }
