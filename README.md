@@ -3,6 +3,7 @@
 A minecraft mod that colors foliage and grass according to the current season.
 
 ### Building
+
 In the project folder, open the console and run:
 ```
 ./gradlew build
@@ -11,6 +12,7 @@ In the project folder, open the console and run:
 The output ```.jar``` file should be in the ``` ./build/libs ``` folder.
 
 ### Requirements/Dependencies
+
 * Java 17 or higher
 * [Fabric Loader](https://fabricmc.net/use/installer/) 0.13.3 or higher
 * Minecraft 1.18.2
@@ -45,3 +47,16 @@ This file can be edited to customize the mod.
     "spring_color":"14145310"
 }
 ````
+
+### Commands
+
+
+| Command                              | Description                      |
+|--------------------------------------|----------------------------------|
+ | ``/openseasons query  ``             | shows the current day and season |
+ | ``/openseasons set <season> <day>``  | sets the current day and season  |
+ | ``/openseasons day query ``          | shows the current day            |
+ | ``/openseasons day set <day> ``      | sets the current day             |
+ | ``/openseasons season query ``       | shows the current season         |
+ | ``/openseasons season set <season>`` | sets the current season          |
+
