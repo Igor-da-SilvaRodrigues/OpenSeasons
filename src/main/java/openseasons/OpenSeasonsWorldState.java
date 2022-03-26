@@ -5,8 +5,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentState;
 import openseasons.util.Keys;
 
-import java.security.Key;
-
 public class OpenSeasonsWorldState extends PersistentState {
 
     public byte current_day;
@@ -39,8 +37,8 @@ public class OpenSeasonsWorldState extends PersistentState {
     /**
      * Gets the OpenSeasonsWorldState from a ServerWorld and returns it. If it fails to load a state for any reason, a
      * default state will be returned instead.
-     * @param world
-     * @return
+     * @param world The target world
+     * @return The world state
      */
     public static OpenSeasonsWorldState getState(ServerWorld world){
         OpenSeasonsWorldState state = new OpenSeasonsWorldState();
@@ -68,4 +66,16 @@ public class OpenSeasonsWorldState extends PersistentState {
         return state;
     }
 
+    /**
+     * <p>Sets the state to a world. This can also notify clients to reload their world renderer.
+     *
+     * @param world The target world
+     * @param worldState The desired world state
+     * @param notifyClients Will notify clients to reload their world renderer when true.
+     */
+    public static void setState(ServerWorld world, OpenSeasonsWorldState worldState, boolean notifyClients){
+        if (notifyClients) OpenSeasonsMod.reloadSeason(world, worldState);
+        if (!worldState.isDirty()) worldState.markDirty();
+        world.getPersistentStateManager().set(Keys.WORLD_STATE, worldState);
+    }
 }

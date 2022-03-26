@@ -3,7 +3,6 @@ package openseasons;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import openseasons.util.OpenSeasonsUtil;
 
@@ -15,14 +14,6 @@ public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModIni
     @Override
     public void onInitializeClient() {
         OpenSeasonsMod.LOGGER.info("Initializing Client...");
-
-        //ClientPlayConnectionEvents.INIT.register((handler, client) -> {
-        //    OpenSeasonsUtil.setSeasonBlocks();
-        //
-        //    client.execute(()->{
-        //        client.worldRenderer.reload();
-        //    });
-        //});
 
         ClientPlayNetworking.registerGlobalReceiver(OpenSeasonsMod.CLIENT_JOIN, (client, handler, buf,
                                                                                  responseSender) -> {

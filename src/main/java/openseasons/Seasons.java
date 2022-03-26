@@ -61,4 +61,11 @@ public enum Seasons {
                 return SUMMER;
         }
     }
+
+    public static boolean hasSeason(String id){
+        for (Seasons season : Seasons.values()){
+            if ( season.toString().equalsIgnoreCase(id) ) return true;
+        }
+        return false;
+    }
 }
