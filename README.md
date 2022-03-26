@@ -5,7 +5,6 @@ A minecraft mod that colors foliage and grass according to the current season.
 
 ### Building
 
----
 
 In the project folder, open the console and run:
 ```
@@ -16,7 +15,6 @@ The output ```.jar``` file should be in the ``` ./build/libs ``` folder.
 
 ### Requirements/Dependencies
 
----
 
 * Java 17 or higher
 * [Fabric Loader](https://fabricmc.net/use/installer/) 0.13.3 or higher
@@ -25,7 +23,6 @@ The output ```.jar``` file should be in the ``` ./build/libs ``` folder.
 
 ### Customization
 
----
 
 After booting up a world with the mod for the first time, an ``openseasons.json`` file with the default 
 configuration should appear in the ``.minecraft/config`` folder.
@@ -56,7 +53,6 @@ This file can be edited to customize the mod.
 ````
 ### Commands
 
----
 
 | Command                              | Description                      |
 |--------------------------------------|----------------------------------|
