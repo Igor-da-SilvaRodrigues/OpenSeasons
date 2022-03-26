@@ -5,8 +5,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentState;
 import openseasons.util.Keys;
 
-import java.security.Key;
-
 public class OpenSeasonsWorldState extends PersistentState {
 
     public byte current_day;
@@ -68,4 +66,17 @@ public class OpenSeasonsWorldState extends PersistentState {
         return state;
     }
 
+    /**
+     * <p>Sets the state to a world. This will also notify clients to reload their world renderer.
+     * It should only really be used when a new season rolls in, It's dumb to reload every single day when it doesn't
+     * affect anything visually.</p>
+     * <p> If you don't want to notify clients, set the state manually.</p>
+     * @param world The target world
+     * @param worldState The desired world state
+     */
+    public static void setState(ServerWorld world, OpenSeasonsWorldState worldState){
+        OpenSeasonsMod.reloadSeason(world, worldState);
+        if (!worldState.isDirty()) worldState.markDirty();
+        world.getPersistentStateManager().set(Keys.WORLD_STATE, worldState);
+    }
 }

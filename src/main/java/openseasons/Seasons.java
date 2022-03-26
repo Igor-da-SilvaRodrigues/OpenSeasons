@@ -11,6 +11,7 @@ public enum Seasons {
     private final float temperature;
     private final float humidity;
     private int foliagecolor;
+    public static final Seasons seasons[] = {Seasons.SUMMER, Seasons.FALL, Seasons.WINTER, Seasons.SPRING};
 
     static{
         SUMMER.next = FALL;
@@ -60,5 +61,12 @@ public enum Seasons {
                 OpenSeasonsMod.LOGGER.error("getSeason(): Invalid Season type! Assuming Summer");
                 return SUMMER;
         }
+    }
+
+    public static boolean hasSeason(String id){
+        for (Seasons season : Seasons.values()){
+            if ( season.toString().toLowerCase().equals( id.toLowerCase() ) ) return true;
+        }
+        return false;
     }
 }

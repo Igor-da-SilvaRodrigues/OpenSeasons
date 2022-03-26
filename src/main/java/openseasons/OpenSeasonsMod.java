@@ -70,7 +70,7 @@ public class OpenSeasonsMod implements ModInitializer {
 				if (worldState.current_day >= MAX_DAY_COUNT){
 					worldState.current_season = worldState.current_season.next();
 					worldState.current_day = 1;
-					this.nextSeason(world, worldState);
+					reloadSeason(world, worldState);
 
 				}
 				LOGGER.info("Trying to set state");
@@ -86,12 +86,11 @@ public class OpenSeasonsMod implements ModInitializer {
 	}
 
 	/**
-	 * Notifies all clients to render the next season. Might have to rename this to "renderSeason" since now it no
-	 * longer passes the season...
+	 * Notifies all clients to reload their world renderer. Needs to be called for a season to render.
 	 * @param world You know what this is
 	 * @param worldState The state containing the desired season.
 	 */
-	void nextSeason(ServerWorld world, OpenSeasonsWorldState worldState){
+	static void reloadSeason(ServerWorld world, OpenSeasonsWorldState worldState){
 
 		PacketByteBuf buffer = PacketByteBufs.create();
 		buffer.writeString(worldState.current_season.toString());
