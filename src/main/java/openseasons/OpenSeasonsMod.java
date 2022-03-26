@@ -3,6 +3,7 @@ package openseasons;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -14,6 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import openseasons.JSON.SimpleJSON;
 import openseasons.util.Keys;
+import openseasons.commands.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +33,6 @@ public class OpenSeasonsMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-
-
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			LOGGER.info("Loading seasons");
@@ -67,10 +67,10 @@ public class OpenSeasonsMod implements ModInitializer {
 				LOGGER.info("A day has passed.");
 				LOGGER.info("We're in day number {}", worldState.current_day);
 
-				if (worldState.current_day >= MAX_DAY_COUNT){
+				if (worldState.current_day > MAX_DAY_COUNT){
 					worldState.current_season = worldState.current_season.next();
 					worldState.current_day = 1;
-					this.nextSeason(world, worldState);
+					reloadSeason(world, worldState);
 
 				}
 				LOGGER.info("Trying to set state");
@@ -80,15 +80,17 @@ public class OpenSeasonsMod implements ModInitializer {
 			}
 
 		});
+
+		registerCommands();
+
 	}
 
 	/**
-	 * Notifies all clients to render the next season. Might have to rename this to "renderSeason" since now it no
-	 * longer passes the season...
+	 * Notifies all clients to reload their world renderer. Needs to be called for a season to render.
 	 * @param world You know what this is
 	 * @param worldState The state containing the desired season.
 	 */
-	void nextSeason(ServerWorld world, OpenSeasonsWorldState worldState){
+	static void reloadSeason(ServerWorld world, OpenSeasonsWorldState worldState){
 
 		PacketByteBuf buffer = PacketByteBufs.create();
 		buffer.writeString(worldState.current_season.toString());
@@ -98,6 +100,18 @@ public class OpenSeasonsMod implements ModInitializer {
 		}
 
 	}
+
+	// register commands here....
+	private void registerCommands(){
+		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+
+			new OpenseasonsCommand().register(dispatcher);
+			new DayCommand().register(dispatcher);
+			new SeasonCommand().register(dispatcher);
+
+		});
+	}
+
 
 	static void load(){
 		JsonElement element;
