@@ -47,10 +47,11 @@ public class DayCommand implements Command<ServerCommandSource> {
     public void register(CommandDispatcher<ServerCommandSource> dispatcher){
 
         dispatcher.register(
-                CommandManager.literal("openseasons").then(
+                CommandManager.literal("openseasons").requires(source -> source.hasPermissionLevel(2)).then(
                         CommandManager.literal("day").then(
-                                CommandManager.literal("set").then(
-                                        CommandManager.argument("day", IntegerArgumentType.integer()).executes(this::set)
+                                CommandManager.literal("set").requires(source -> source.hasPermissionLevel(4)).then(
+                                        CommandManager.argument("day", IntegerArgumentType.integer())
+                                                .executes(this::set)
                                 )
                         ).then(
                                 CommandManager.literal("query")

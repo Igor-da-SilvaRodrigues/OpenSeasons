@@ -46,9 +46,9 @@ public class SeasonCommand implements Command<ServerCommandSource> {
 
     public void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(
-                CommandManager.literal("openseasons").then(
+                CommandManager.literal("openseasons").requires(source -> source.hasPermissionLevel(2)).then(
                         CommandManager.literal("season").then(
-                                CommandManager.literal("set").then(
+                                CommandManager.literal("set").requires(source -> source.hasPermissionLevel(4)).then(
                                         CommandManager.argument("season", StringArgumentType.string())
                                                 .executes(this::set)
                                 )
