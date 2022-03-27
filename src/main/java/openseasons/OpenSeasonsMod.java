@@ -153,7 +153,7 @@ public class OpenSeasonsMod implements ModInitializer {
 				LOGGER.info("Loaded {} as the Spring color",color);
 			}
 		}catch (IOException e){
-			LOGGER.error(e.toString());
+			LOGGER.error("Failed to load configuration\n"+ e);
 		}
 	}
 
