@@ -17,7 +17,7 @@ public class OpenSeasonsUtil {
 
         int intended_color = season.getFoliagecolor();
 
-        OpenSeasonsMod.LOGGER.info("The following color has been chosen> {}", intended_color);
+        OpenSeasonsMod.LOGGER.info(Keys.MOD_ID +"The following color has been chosen> {}", intended_color);
 
         ColorProviderRegistry.BLOCK.register((state, view, pos, tintIndex) -> intended_color, Blocks.DARK_OAK_LEAVES,
                 Blocks.ACACIA_LEAVES,

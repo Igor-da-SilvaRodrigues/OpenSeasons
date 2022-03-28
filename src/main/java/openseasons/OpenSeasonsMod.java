@@ -45,7 +45,8 @@ public class OpenSeasonsMod implements ModInitializer {
 		});
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			LOGGER.info("First time configuration. If this is the first time loading a world, expect it to load " +
+			LOGGER.info(MOD_ID + ": First time configuration. If this is the first time loading a world, expect it to" +
+					" load " +
 					"default configurations");
 			OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(handler.getPlayer().getWorld());
 
@@ -122,38 +123,38 @@ public class OpenSeasonsMod implements ModInitializer {
 
 			if(element != null && element.isJsonPrimitive()) {
 				MAX_DAY_COUNT = element.getAsJsonPrimitive().getAsByte();
-				LOGGER.info("Loaded {} as the current day limit",MAX_DAY_COUNT);
+				LOGGER.info(MOD_ID +":Loaded {} as the current day limit",MAX_DAY_COUNT);
 			}
 
 			element = object.get("summer_color");
 			if(element != null && element.isJsonPrimitive()) {
 				String color = element.getAsJsonPrimitive().getAsString();
 				Seasons.SUMMER.setFoliagecolor(color);
-				LOGGER.info("Loaded {} as the Summer color",color);
+				LOGGER.info(MOD_ID +":Loaded {} as the Summer color",color);
 			}
 
 			element = object.get("fall_color");
 			if(element != null && element.isJsonPrimitive()) {
 				String color = element.getAsJsonPrimitive().getAsString();
 				Seasons.FALL.setFoliagecolor(color);
-				LOGGER.info("Loaded {} as the Fall color",color);
+				LOGGER.info(MOD_ID +":Loaded {} as the Fall color",color);
 			}
 
 			element = object.get("winter_color");
 			if(element != null && element.isJsonPrimitive()) {
 				String color = element.getAsJsonPrimitive().getAsString();
 				Seasons.WINTER.setFoliagecolor(color);
-				LOGGER.info("Loaded {} as the Winter color",color);
+				LOGGER.info(MOD_ID +":Loaded {} as the Winter color",color);
 			}
 
-			element = object.get("spring_color");
+			element = object.get(":spring_color");
 			if(element != null && element.isJsonPrimitive()) {
 				String color = element.getAsJsonPrimitive().getAsString();
 				Seasons.SPRING.setFoliagecolor(color);
-				LOGGER.info("Loaded {} as the Spring color",color);
+				LOGGER.info(MOD_ID +":Loaded {} as the Spring color",color);
 			}
 		}catch (IOException e){
-			LOGGER.error("Failed to load configuration\n"+ e);
+			LOGGER.error(MOD_ID +":Failed to load configuration\n"+ e);
 		}
 	}
 
@@ -169,7 +170,7 @@ public class OpenSeasonsMod implements ModInitializer {
 		try{
 			SimpleJSON.saveTo(config_path, attributes);
 		}catch(IOException e){
-			LOGGER.error("Failed to save configuration\n"+e);
+			LOGGER.error(MOD_ID +":Failed to save configuration\n"+e);
 		}
 	}
 }
