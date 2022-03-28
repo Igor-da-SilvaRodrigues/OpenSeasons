@@ -4,8 +4,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import openseasons.util.Keys;
 import openseasons.util.OpenSeasonsUtil;
-
 
 @Environment(EnvType.CLIENT)
 public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModInitializer {
@@ -13,7 +13,7 @@ public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModIni
 
     @Override
     public void onInitializeClient() {
-        OpenSeasonsMod.LOGGER.info("Initializing Client...");
+        OpenSeasonsMod.LOGGER.info(Keys.MOD_ID+ ":Initializing Client...");
 
         ClientPlayNetworking.registerGlobalReceiver(OpenSeasonsMod.CLIENT_JOIN, (client, handler, buf,
                                                                                  responseSender) -> {

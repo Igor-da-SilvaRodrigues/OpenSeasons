@@ -1,5 +1,7 @@
 package openseasons;
 
+import openseasons.util.Keys;
+
 public enum Seasons {
     SUMMER("Summer", 1f, 0f,0x548248),
     FALL("Fall", 0.2f, 0.8f, 0xf37316),
@@ -57,7 +59,7 @@ public enum Seasons {
             case "spring":
                 return Seasons.SPRING;
             default:
-                OpenSeasonsMod.LOGGER.error("getSeason(): Invalid Season type! Assuming Summer");
+                OpenSeasonsMod.LOGGER.error(Keys.MOD_ID +": Invalid Season type! Assuming Summer");
                 return SUMMER;
         }
     }

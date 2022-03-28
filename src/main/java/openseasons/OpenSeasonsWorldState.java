@@ -52,14 +52,14 @@ public class OpenSeasonsWorldState extends PersistentState {
         }, Keys.WORLD_STATE);
 
         if (state == null){
-            OpenSeasonsMod.LOGGER.warn("Null state when trying to read");
-            OpenSeasonsMod.LOGGER.info("Assuming default values");
+            OpenSeasonsMod.LOGGER.warn(Keys.MOD_ID +":Null state when trying to read");
+            OpenSeasonsMod.LOGGER.info(Keys.MOD_ID +":Assuming default values");
             state = new OpenSeasonsWorldState( (byte) 1, Seasons.SUMMER);
         }
 
         if (!state.isInitialized()){
-            OpenSeasonsMod.LOGGER.warn("Uninitialized state when trying to read");
-            OpenSeasonsMod.LOGGER.info("Assuming default values");
+            OpenSeasonsMod.LOGGER.warn(Keys.MOD_ID +":Uninitialized state when trying to read");
+            OpenSeasonsMod.LOGGER.info(Keys.MOD_ID +":Assuming default values");
             state = new OpenSeasonsWorldState( (byte) 1, Seasons.SUMMER);
         }
 
