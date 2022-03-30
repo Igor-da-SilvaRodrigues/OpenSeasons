@@ -4,15 +4,27 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.AirBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.processor.BlockRotStructureProcessor;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.gen.stateprovider.BlockStateProvider;
 import openseasons.JSON.SimpleJSON;
 import openseasons.util.Keys;
 import openseasons.commands.*;
@@ -20,6 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Random;
+
+import static net.minecraft.state.property.Properties.SNOWY;
 
 public class OpenSeasonsMod implements ModInitializer {
 	public static final String MOD_ID = Keys.MOD_ID;
@@ -80,7 +95,24 @@ public class OpenSeasonsMod implements ModInitializer {
 
 			}
 
+			//--------------
+			Random random = new Random();
+			for (ServerPlayerEntity player : world.getPlayers()){
+				if (random.nextInt(10) == 1){//10% chance of a chunk being allowed to melt at this tick.
+					updateMeltableBlocks(world, world.getWorldChunk(player.getBlockPos()));
+				}
+			}
+
 		});
+
+
+		//maybe I can use a 1/100 chance every tick to melt ice and snow in the winter...
+		//with this snow would melt gradually, and only after the chunk is loaded, something like that.
+
+		//ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
+		//	updateMeltableBlocks(world, chunk);
+		//});
+
 
 		registerCommands();
 
@@ -100,6 +132,55 @@ public class OpenSeasonsMod implements ModInitializer {
 			ServerPlayNetworking.send(player, NEXT_SEASON, buffer);
 		}
 
+	}
+	//This is slows down minecraft a lot. I've to figure out some other way to mass replace blocks in the world.
+	private static void updateMeltableBlocks(ServerWorld world, WorldChunk chunk){
+		LOGGER.info("Updating meltable blocks");
+		OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(world);
+		boolean shouldMelt = (worldState.current_season.getTemperature() > 0.1f);
+
+
+		//transform ice blocks in water blocks, and snow blocks in air blocks...
+		if (shouldMelt){
+			Random random = new Random();
+			int bottom = chunk.getBottomY();
+			int top = chunk.getTopY();
+			if (top > 100) {
+				top = 100;
+			}
+			if (bottom < 40) {
+				bottom = 40;
+			}
+
+			for (int x = 0; x < 16; x += 1){
+				for (int y = bottom ;y <= top ; y += 1){//very high mountains will get to keep their snow cover in all
+					// seasons.
+					for (int z = 0; z < 16; z += 1){
+						if (random.nextInt(10) == 1){// second layer of randomness, this will make it so not all blocks will melt at the same time.
+							LOGGER.info("Checking position x:{}, y:{}, z:{}", x,y,z);
+							BlockPos blockPos = new BlockPos(x,y,z);
+							BlockState blockState = chunk.getBlockState(blockPos);
+
+							if (blockState == Blocks.SNOW.getDefaultState() || blockState == Blocks.SNOW_BLOCK.getDefaultState()){
+								LOGGER.info("Found snow");
+
+								chunk.setBlockState(blockPos, Blocks.AIR.getDefaultState(), false);
+								//LOGGER.info("The result of the removal operation was : " + suc.toString());
+								//world.breakBlock(pos, (flags & SKIP_DROPS) == 0, null, maxUpdateDepth);
+								//boolean suc = world.breakBlock(blockPos, false, null, 512);
+							}
+
+							if (blockState == Blocks.GRASS_BLOCK.getDefaultState().with(SNOWY, true)){
+								chunk.setBlockState(blockPos, blockState.with(SNOWY, false), false);
+							}
+
+
+						}
+					}
+				}
+			}
+
+		}
 	}
 
 	// register commands here....
