@@ -7,13 +7,17 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.tick.OrderedTick;
 import openseasons.util.Keys;
 import openseasons.util.OpenSeasonsUtil;
+
+import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModInitializer {
@@ -54,17 +58,12 @@ public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModIni
         });
 
         ClientPlayNetworking.registerGlobalReceiver(OpenSeasonsMod.RELOAD_BLOCK_STATE, (client, handler, buf, responseSender) -> {
+
             BlockUpdateS2CPacket blockUpdatePacket = new BlockUpdateS2CPacket(buf);
-            ChunkPos chunkPos = buf.readChunkPos();//the position of the target chunk
-            BlockPos chunkStartPos = chunkPos.getStartPos();//need this because I can't get a chunk from Chunk Pos directly... bruh
-            BlockPos blockPos = blockUpdatePacket.getPos();//the block to be updated.
-            BlockState blockState = blockUpdatePacket.getState();//the new block state
-            WorldChunk chunk = handler.getWorld().getWorldChunk(chunkStartPos);// the target chunk
 
-           client.execute(()->{
-               chunk.setBlockState(blockPos, blockState, false);//
-
-           });
+            client.execute(()->{
+                handler.onBlockUpdate(blockUpdatePacket);
+            });
 
         });
 
