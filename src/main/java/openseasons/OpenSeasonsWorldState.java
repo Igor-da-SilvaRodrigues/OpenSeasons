@@ -1,9 +1,14 @@
 package openseasons;
 
+import net.fabricmc.fabric.api.biome.v1.BiomeModificationContext;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.world.PersistentState;
+import net.minecraft.world.biome.Biome;
 import openseasons.util.Keys;
+import openseasons.util.S2C;
 
 public class OpenSeasonsWorldState extends PersistentState {
 
@@ -71,10 +76,16 @@ public class OpenSeasonsWorldState extends PersistentState {
      *
      * @param world The target world
      * @param worldState The desired world state
-     * @param notifyClients Will notify clients to reload their world renderer when true.
+     * @param seasonChanged Will notify clients to reload their world renderer when true.
      */
-    public static void setState(ServerWorld world, OpenSeasonsWorldState worldState, boolean notifyClients){
-        if (notifyClients) OpenSeasonsMod.reloadSeason(world, worldState);
+    public static void setState(ServerWorld world, OpenSeasonsWorldState worldState, boolean seasonChanged){
+        if (seasonChanged){
+            if(OpenSeasonsMod.enableDynamicWeather){
+                OpenSeasonsMod.currentSeason = worldState.current_season;
+            }
+            S2C.setAllClientsSeason(world, worldState);
+        }
+
         if (!worldState.isDirty()) worldState.markDirty();
         world.getPersistentStateManager().set(Keys.WORLD_STATE, worldState);
     }

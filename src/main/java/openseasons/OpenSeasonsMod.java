@@ -4,13 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import openseasons.JSON.SimpleJSON;
@@ -18,6 +16,7 @@ import openseasons.commands.DayCommand;
 import openseasons.commands.OpenseasonsCommand;
 import openseasons.commands.SeasonCommand;
 import openseasons.util.Keys;
+import openseasons.util.S2C;
 import openseasons.util.WorldManipulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +28,14 @@ public class OpenSeasonsMod implements ModInitializer {
 	public static final String MOD_ID = Keys.MOD_ID;
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static byte MAX_DAY_COUNT = 10;
+	public static boolean enableDynamicWeather = true;
 	private static final String config_path = "config/openseasons.json";
 
 	public static final Identifier RELOAD_RENDERER = new Identifier(MOD_ID,Keys.RELOAD_RENDERER);
-	public static final Identifier NEXT_SEASON = new Identifier(MOD_ID,Keys.NEXT_SEASON);
-	public static final Identifier CLIENT_JOIN = new Identifier(MOD_ID, Keys.CLIENT_JOIN);
-	public static final Identifier RELOAD_BLOCK_STATE = new Identifier(MOD_ID, Keys.RELOAD_BLOCK_STATE);
+	public static final Identifier SET_SEASON = new Identifier(MOD_ID,Keys.NEXT_SEASON);
+	public static final Identifier UPDATE_BLOCK_STATE = new Identifier(MOD_ID, Keys.UPDATE_BLOCK_STATE);
+
+	public static Seasons currentSeason = Seasons.SUMMER;
 
 	@Override
 	public void onInitialize() {
@@ -55,18 +56,28 @@ public class OpenSeasonsMod implements ModInitializer {
 					"default configurations");
 			OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(handler.getPlayer().getWorld());
 
-			PacketByteBuf buf = PacketByteBufs.create();
-			buf.writeString(worldState.current_season.toString());
+			if (worldState.current_season != currentSeason) {
+				LOGGER.info("Loading {} as the current season", worldState.current_season);
+				currentSeason = worldState.current_season;
+			}
 
-			ServerPlayNetworking.send(handler.getPlayer(), CLIENT_JOIN, buf);
-
+			S2C.setClientSeason(worldState, handler.getPlayer());
 		});
+
+		//ServerWorldEvents.LOAD.register((server, world) -> {
+		//	if(enableDynamicWeather){
+		//		OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(world);
+		//		OpenSeasonsMod.currentSeason = worldState.current_season;
+		//		LOGGER.info("Loading {} as the current season", worldState.current_season);
+		//	}
+		//});
 
 
 		ServerTickEvents.END_WORLD_TICK.register((world)->{
 			short currentTime = (short) (world.getTimeOfDay() % 24000L);//getting time of day
 
 			if (currentTime == 1){
+				boolean seasonChanged = false;
 				OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(world);
 				worldState.current_day +=  1;
 
@@ -76,43 +87,19 @@ public class OpenSeasonsMod implements ModInitializer {
 				if (worldState.current_day > MAX_DAY_COUNT){
 					worldState.current_season = worldState.current_season.next();
 					worldState.current_day = 1;
-					reloadSeason(world, worldState);
 
+					seasonChanged = true;
 				}
 				LOGGER.info("Trying to set state");
-				worldState.markDirty();
-				world.getPersistentStateManager().set(Keys.WORLD_STATE, worldState);//set state every time a day passes.
-
+				OpenSeasonsWorldState.setState(world, worldState, seasonChanged);
 			}
 
-			//--------------
-			Random random = new Random();
 
-			OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(world);
-			if (worldState.current_season.getTemperature() > 0.1f && random.nextInt(10) == 1){//10% chance of a melt at this tick.
-				WorldManipulation.meltBlocks(world);
-			}
-
+			//tryMeltBlocks(world);
 
 		});//tick
 
 		registerCommands();
-
-	}
-
-	/**
-	 * Notifies all clients to reload their world renderer. Needs to be called for a season to render.
-	 * @param world The target world
-	 * @param worldState The state containing the desired season.
-	 */
-	static void reloadSeason(ServerWorld world, OpenSeasonsWorldState worldState){
-
-		PacketByteBuf buffer = PacketByteBufs.create();
-		buffer.writeString(worldState.current_season.toString());
-
-		for (ServerPlayerEntity player : world.getPlayers()){
-			ServerPlayNetworking.send(player, NEXT_SEASON, buffer);
-		}
 
 	}
 
@@ -133,40 +120,49 @@ public class OpenSeasonsMod implements ModInitializer {
 		try{
 			JsonObject object = SimpleJSON.loadFrom(config_path);
 
-			element = object.get("max_day_count");
+			element = object.get(Keys.MAX_DAY_COUNT);
 
 			if(element != null && element.isJsonPrimitive()) {
 				MAX_DAY_COUNT = element.getAsJsonPrimitive().getAsByte();
 				LOGGER.info(MOD_ID +":Loaded {} as the current day limit",MAX_DAY_COUNT);
 			}
 
-			element = object.get("summer_color");
+			element = object.get(Keys.SUMMER_COLOR);
 			if(element != null && element.isJsonPrimitive()) {
 				String color = element.getAsJsonPrimitive().getAsString();
 				Seasons.SUMMER.setFoliagecolor(color);
 				LOGGER.info(MOD_ID +":Loaded {} as the Summer color",color);
 			}
 
-			element = object.get("fall_color");
+			element = object.get(Keys.FALL_COLOR);
 			if(element != null && element.isJsonPrimitive()) {
 				String color = element.getAsJsonPrimitive().getAsString();
 				Seasons.FALL.setFoliagecolor(color);
 				LOGGER.info(MOD_ID +":Loaded {} as the Fall color",color);
 			}
 
-			element = object.get("winter_color");
+			element = object.get(Keys.WINTER_COLOR);
 			if(element != null && element.isJsonPrimitive()) {
 				String color = element.getAsJsonPrimitive().getAsString();
 				Seasons.WINTER.setFoliagecolor(color);
 				LOGGER.info(MOD_ID +":Loaded {} as the Winter color",color);
 			}
 
-			element = object.get(":spring_color");
+			element = object.get(Keys.SPRING_COLOR);
 			if(element != null && element.isJsonPrimitive()) {
 				String color = element.getAsJsonPrimitive().getAsString();
 				Seasons.SPRING.setFoliagecolor(color);
 				LOGGER.info(MOD_ID +":Loaded {} as the Spring color",color);
 			}
+
+			element = object.get(Keys.ENABLE_DYNAMIC_WEATHER);
+			if (element != null && element.isJsonPrimitive()){
+				enableDynamicWeather = element.getAsJsonPrimitive().getAsBoolean();
+				if (enableDynamicWeather){
+					LOGGER.warn(MOD_ID + ": Enabled Dynamic Weather! Don't use multiple worlds!!");
+				}
+			}
+
 		}catch (IOException e){
 			LOGGER.error(MOD_ID +":Failed to load configuration\n"+ e);
 		}
@@ -175,11 +171,12 @@ public class OpenSeasonsMod implements ModInitializer {
 	static void save() {
 		JsonObject attributes = new JsonObject();
 
-		attributes.addProperty("max_day_count", MAX_DAY_COUNT);
-		attributes.addProperty("summer_color", String.valueOf(Seasons.SUMMER.getFoliagecolor()));
-		attributes.addProperty("fall_color",   String.valueOf(Seasons.FALL.getFoliagecolor()));
-		attributes.addProperty("winter_color", String.valueOf(Seasons.WINTER.getFoliagecolor()));
-		attributes.addProperty("spring_color", String.valueOf(Seasons.SPRING.getFoliagecolor()));
+		attributes.addProperty(Keys.MAX_DAY_COUNT, MAX_DAY_COUNT);
+		attributes.addProperty(Keys.SUMMER_COLOR, String.valueOf(Seasons.SUMMER.getFoliagecolor()));
+		attributes.addProperty(Keys.FALL_COLOR,   String.valueOf(Seasons.FALL.getFoliagecolor()));
+		attributes.addProperty(Keys.WINTER_COLOR, String.valueOf(Seasons.WINTER.getFoliagecolor()));
+		attributes.addProperty(Keys.SPRING_COLOR, String.valueOf(Seasons.SPRING.getFoliagecolor()));
+		attributes.addProperty(Keys.ENABLE_DYNAMIC_WEATHER, enableDynamicWeather);
 
 		try{
 			SimpleJSON.saveTo(config_path, attributes);

@@ -1,12 +1,13 @@
 package openseasons;
 
+import net.minecraft.world.biome.Biome;
 import openseasons.util.Keys;
 
 public enum Seasons {
-    SUMMER("Summer", 1f, 0f,0x548248),
+    SUMMER("Summer", 0.6f, 0f,0x548248),
     FALL("Fall", 0.2f, 0.8f, 0xf37316),
-    WINTER("Winter", 0f, 0.5f,0xe3af8d),
-    SPRING("Spring", 0.6f, 0.6f,0xd7d71e);
+    WINTER("Winter", 0.0f, 0.5f,0xe3af8d),
+    SPRING("Spring", 0.2f, 0.6f,0xd7d71e);
 
     private Seasons next;
     private final String name;
@@ -48,6 +49,10 @@ public enum Seasons {
         setFoliagecolor(Integer.parseInt(newColor));
     }
 
+    public Biome.Precipitation getPrecipitation() {
+        return (this == Seasons.WINTER)? Biome.Precipitation.SNOW : Biome.Precipitation.RAIN;
+    }
+
     public static Seasons getSeason(String id){
         switch (id.toLowerCase()){
             case "summer":
@@ -63,6 +68,7 @@ public enum Seasons {
                 return SUMMER;
         }
     }
+
 
     public static boolean hasSeason(String id){
         for (Seasons season : Seasons.values()){

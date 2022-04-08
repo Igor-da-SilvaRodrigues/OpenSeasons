@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "openseasons.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "BiomeMixin",
+    "ServerWorldMixin",
+    "WorldMixin"
+  ],
+  "client": [],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

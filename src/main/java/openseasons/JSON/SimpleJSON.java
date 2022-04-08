@@ -56,6 +56,7 @@ public class SimpleJSON {
 
         String string = null;
         Integer integer = null;
+        Boolean bool = null;
         String name = null;
 
         JsonReader jsonReader = new JsonReader(reader);
@@ -67,14 +68,16 @@ public class SimpleJSON {
                 name = jsonReader.nextName();
             }else if (token == JsonToken.NUMBER){
                 integer = jsonReader.nextInt();
-
                 jsonObject.addProperty(name, integer);//no java, 'name' may not be null. But I will not waste my time
                 // explaining to you why that is the case.
 
             }else if (token == JsonToken.STRING){
                 string = jsonReader.nextString();
-
                 jsonObject.addProperty(name, string);
+
+            }else if (token == JsonToken.BOOLEAN){
+                bool =  jsonReader.nextBoolean();
+                jsonObject.addProperty(name, bool);
 
             }
         }
