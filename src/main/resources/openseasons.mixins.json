@@ -6,7 +6,8 @@
   "mixins": [
     "BiomeMixin",
     "ServerWorldMixin",
-    "WorldMixin"
+    "WorldMixin",
+    "WorldRendererMixin"
   ],
   "client": [],
   "server": [],

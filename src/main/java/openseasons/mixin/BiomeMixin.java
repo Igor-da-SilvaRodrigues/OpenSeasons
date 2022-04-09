@@ -33,7 +33,7 @@ public abstract class BiomeMixin {
 
     @Shadow public abstract boolean isCold(BlockPos pos);
 
-
+    /*
     @Inject(method = "doesNotSnow(Lnet/minecraft/util/math/BlockPos;)Z", at = @At("TAIL"), cancellable = true)
     private void doesNotSnowInject(BlockPos pos, CallbackInfoReturnable<Boolean> cir ){
         //if it rains it doesn't snow
@@ -43,18 +43,24 @@ public abstract class BiomeMixin {
         }
     }
 
+     */
 
+    /*
     @Inject(method = "canSetSnow(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;)Z", at = @At("HEAD"), cancellable = true)
     private void canSetSnowInject(WorldView world, BlockPos pos, CallbackInfoReturnable<Boolean> cir){
         BlockState blockState1;
         Biome.Category category = getCategory();
-        if (category == Biome.Category.ICY || category == Biome.Category.MOUNTAIN || category == Biome.Category.TAIGA){
 
+        if (category == Biome.Category.ICY || category == Biome.Category.MOUNTAIN || category == Biome.Category.TAIGA || OpenSeasonsMod.currentSeason == Seasons.WINTER){
+            OpenSeasonsMod.LOGGER.info("Considering setting snow");
             cir.setReturnValue(pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && world.getLightLevel(LightType.BLOCK, pos) < 10 && (blockState1 = world.getBlockState(pos)).isAir() && Blocks.SNOW.getDefaultState().canPlaceAt(world, pos));
 
         }
-        cir.setReturnValue(false);
+
+
     }
+
+     */
 
     /*
     @Inject(method = "canSetIce(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;Z)Z", at = @At("HEAD"), cancellable = true)
@@ -119,6 +125,7 @@ public abstract class BiomeMixin {
                     getCategory() == Biome.Category.NONE) {
                 cir.setReturnValue(Biome.Precipitation.NONE);
             } else {
+                //OpenSeasonsMod.LOGGER.info("It's {}, setting precipitation as {}", OpenSeasonsMod.currentSeason, OpenSeasonsMod.currentSeason.getPrecipitation());
                 cir.setReturnValue(OpenSeasonsMod.currentSeason.getPrecipitation());
             }
         }

@@ -3,15 +3,10 @@ package openseasons;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.biome.v1.BiomeModificationContext;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import openseasons.util.Keys;
 import openseasons.util.OpenSeasonsUtil;
-
-import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class OpenSeasonsModClient extends OpenSeasonsMod implements ClientModInitializer {

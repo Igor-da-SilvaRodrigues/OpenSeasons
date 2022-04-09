@@ -4,12 +4,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import openseasons.JSON.SimpleJSON;
 import openseasons.commands.DayCommand;
@@ -17,12 +14,10 @@ import openseasons.commands.OpenseasonsCommand;
 import openseasons.commands.SeasonCommand;
 import openseasons.util.Keys;
 import openseasons.util.S2C;
-import openseasons.util.WorldManipulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Random;
 
 public class OpenSeasonsMod implements ModInitializer {
 	public static final String MOD_ID = Keys.MOD_ID;
@@ -35,6 +30,7 @@ public class OpenSeasonsMod implements ModInitializer {
 	public static final Identifier SET_SEASON = new Identifier(MOD_ID,Keys.NEXT_SEASON);
 	public static final Identifier UPDATE_BLOCK_STATE = new Identifier(MOD_ID, Keys.UPDATE_BLOCK_STATE);
 
+	//Used to store the current season if enableDynamicWeather is true.
 	public static Seasons currentSeason = Seasons.SUMMER;
 
 	@Override
@@ -56,21 +52,13 @@ public class OpenSeasonsMod implements ModInitializer {
 					"default configurations");
 			OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(handler.getPlayer().getWorld());
 
-			if (worldState.current_season != currentSeason) {
+			if (enableDynamicWeather && worldState.current_season != currentSeason) {
 				LOGGER.info("Loading {} as the current season", worldState.current_season);
 				currentSeason = worldState.current_season;
 			}
 
 			S2C.setClientSeason(worldState, handler.getPlayer());
 		});
-
-		//ServerWorldEvents.LOAD.register((server, world) -> {
-		//	if(enableDynamicWeather){
-		//		OpenSeasonsWorldState worldState = OpenSeasonsWorldState.getState(world);
-		//		OpenSeasonsMod.currentSeason = worldState.current_season;
-		//		LOGGER.info("Loading {} as the current season", worldState.current_season);
-		//	}
-		//});
 
 
 		ServerTickEvents.END_WORLD_TICK.register((world)->{
@@ -94,8 +82,6 @@ public class OpenSeasonsMod implements ModInitializer {
 				OpenSeasonsWorldState.setState(world, worldState, seasonChanged);
 			}
 
-
-			//tryMeltBlocks(world);
 
 		});//tick
 

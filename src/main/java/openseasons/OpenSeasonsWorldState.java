@@ -1,12 +1,8 @@
 package openseasons;
 
-import net.fabricmc.fabric.api.biome.v1.BiomeModificationContext;
-import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.world.PersistentState;
-import net.minecraft.world.biome.Biome;
 import openseasons.util.Keys;
 import openseasons.util.S2C;
 
